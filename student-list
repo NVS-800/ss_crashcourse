@@ -1,0 +1,88 @@
+require 'date'
+
+class Student
+
+    attr_accessor :surname, :name, :date_of_birth
+
+    @@students = []
+
+    def initialize(surname, name, date_of_birth)
+
+        @surname = surname
+        @name = name
+        @date_of_birth = date_of_birth
+
+        if Date.today < date_of_birth
+            raise ArgumentError, 'дата має бути в минулому'
+        end
+
+        AddStudent(self)
+    end
+
+    def CalculateAge
+        today = Date.today
+        age = today.year - @date_of_birth.year
+        if today <= (@date_of_birth + age)
+            age = age - 1
+        end
+        age
+    end
+
+    def AddStudent(student)
+        unless @@students.any? {|s| s.name == student.name && s.surname == student.surname && s.date_of_birth == student.date_of_birth}
+          @@students << student
+        end
+    end
+
+    def RemoveStudent
+        @@students.delete(self)
+    end
+
+    def self.GetStudentsByAge(age)
+        @@students.select {|student| student.CalculateAge == age}
+    end
+
+    def self.GetStudentsByName(name)
+        @@students.select {|student| student.name == name}
+    end
+
+    def self.AllStudents
+        @@students
+    end
+end
+
+require 'date'
+
+student1 = Student.new('Андрієвич', 'Андрій', Date.new(2000, 1, 2))
+student2 = Student.new('Максимович', 'Максим', Date.new(2001, 2, 3))
+student3 = Student.new('Мельніченко', 'Віталій', Date.new(2002, 3, 4))
+
+
+puts "список студентів:"
+
+Student.AllStudents.each do |student|
+    puts "#{student.name} #{student.surname}, дата народження: #{student.date_of_birth}"
+end
+
+puts "\nвік студента #{student2.name} #{student2.surname}: #{student2.CalculateAge} років"
+
+student1.RemoveStudent
+puts "\ncписок студентів після видалення першого студента:"
+
+Student.AllStudents.each do |student|
+  puts "#{student.name} #{student.surname}, дата народження: #{student.date_of_birth}"
+end
+
+puts "\nстуденти віком 23 роки:"
+
+students_age_23 = Student.GetStudentsByAge(23)
+students_age_23.each do |student|
+  puts "#{student.name} #{student.surname}, дата народження: #{student.date_of_birth}"
+end
+
+puts "\nстуденти з іменем 'Віталій':"
+
+students_named_vitalii = Student.GetStudentsByName("Віталій")
+students_named_vitalii.each do |student|
+  puts "#{student.name} #{student.surname}, дата народження: #{student.date_of_birth}"
+end
